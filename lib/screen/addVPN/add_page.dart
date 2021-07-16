@@ -26,7 +26,7 @@ class _AddVPNState extends State<AddVPN> {
             PageViewModel(
               pageColor: Colors.blue,
               title: Text('Create new username'),
-              body: Text('Please create your new username to request VPN'),
+              body: Text('Please choose your new username to request VPN'),
               mainImage: Image.asset(
                 'assets/images/username.png',
                 // width: 280,
@@ -60,7 +60,7 @@ class _AddVPNState extends State<AddVPN> {
 
   Text subtitle() {
     return Text(
-      'Your points wallet will deducted when your request status is '
+      'Your points will deducted when your request status is '
       'completed',
       textAlign: TextAlign.center,
     );
