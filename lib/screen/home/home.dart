@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/dialog/logout_dialog.dart';
+import 'package:lune_vpn_agent/main.dart';
+import 'package:lune_vpn_agent/ui/card_order.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -81,12 +83,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-                return Container();
+                return ListView(
+                  children: snapshot.data!.docs.map((doc) {
+                    return CardOrder(
+                      userName: doc['Username'],
+                      status: doc['Status'],
+                      isPending: doc['isPending'],
+                    );
+                  }).toList(),
+                );
               })),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab',
         tooltip: 'Request VPN',
         onPressed: () {
+          messengerKey.currentState!.removeCurrentSnackBar();
           Navigator.pushNamed(context, MyRoutes.add);
         },
         child: Icon(

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
@@ -7,6 +8,7 @@ import 'package:lune_vpn_agent/ui/textbar.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:validators/validators.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -49,20 +51,32 @@ class _LoginPageState extends State<LoginPage> {
     await context
         .read<AuthenticationServices>()
         .signIn(_emailController.text, _passwordController.text)
-        .then((e) {
+        .then((e) async {
       if (e == 'user-not-found') {
-        showErrorSnackBar('User not found. Please use registered email '
-            'address!');
+        showErrorSnackBar(
+            'User not found. Please use registered email '
+            'address!',
+            2);
         _errorButton();
       } else if (e == 'wrong-password') {
-        showErrorSnackBar('Wrong password. Please use your correct password!');
+        showErrorSnackBar(
+            'Wrong password. Please use your correct '
+            'password!',
+            2);
         _errorButton();
-      } else {
+      } else if (e == 'completed') {
+        if (kIsWeb) {
+          print('Set auto Auth on Web');
+          await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+        }
         _loginButton.success();
-        showSuccessSnackBar('Login Success');
+        showSuccessSnackBar('Login Success', 2);
         Future.delayed(Duration(seconds: 2), () {
           Navigator.pushReplacementNamed(context, MyRoutes.home);
         });
+      } else {
+        showErrorSnackBar('Aw Snap! An error occured: $e', 2);
+        _errorButton();
       }
       // showErrorSnackBar(e.toString());
       // _errorButton();
@@ -153,6 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                     RoundedLoadingButton(
                       controller: _loginButton,
                       onPressed: () {
+                        FocusScope.of(context).unfocus();
                         setState(() {
                           _errEmail = false;
                           _errPass = false;

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
+import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/screen/addVPN/add_page.dart';
 import 'package:lune_vpn_agent/screen/home/home.dart';
 import 'package:lune_vpn_agent/screen/login/login_page.dart';
@@ -31,6 +33,9 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<AuthenticationServices>(
           create: (context) => AuthenticationServices(FirebaseAuth.instance),
+        ),
+        Provider<DatabaseAPI>(
+          create: (context) => DatabaseAPI(FirebaseFirestore.instance),
         ),
       ],
       child: MaterialApp(

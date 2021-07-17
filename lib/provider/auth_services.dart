@@ -8,7 +8,9 @@ class AuthenticationServices extends ChangeNotifier {
   Future<String?> signIn(String email, String password) async {
     String? status;
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) => status = 'completed');
     } on FirebaseAuthException catch (e) {
       print(e.code);
       status = e.code;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 
 Future<bool?> showLogoutDialog(BuildContext context) async {
@@ -33,6 +34,9 @@ Future<bool?> showLogoutDialog(BuildContext context) async {
       ),
     ],
   );
-  await showDialog(context: context, builder: (BuildContext context) => alert);
+  await DialogBackground(
+    blur: 6,
+    dialog: alert,
+  ).show(context);
   return isLogout;
 }
