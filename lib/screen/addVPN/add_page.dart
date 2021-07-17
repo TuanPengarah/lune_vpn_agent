@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intro_views_flutter/intro_views_flutter.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
@@ -20,8 +19,10 @@ class _AddVPNState extends State<AddVPN> {
   bool _errUsername = false;
   User? _user = FirebaseAuth.instance.currentUser;
   int _currentStep = 0;
-  // List<ServerLocation> _serverLocation = S
-  // List<DropdownMenuItem<ServerLocation>> _dropDownMenuItems;
+  List<String> _location = ['Malaysia', 'Singapore'];
+  String? _selectedLocation = 'Malaysia';
+  List<String> _duration = ['1 Day Free Trial', '15 Days', '30 Days'];
+  String? _currentDuration = '30 Days';
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +43,28 @@ class _AddVPNState extends State<AddVPN> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      'Request VPN',
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.white,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Request VPN',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Fill in the information below to completed your request',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 20),
                   Container(
                     width: constraint.maxWidth,
                     height: constraint.minHeight,
@@ -63,18 +77,34 @@ class _AddVPNState extends State<AddVPN> {
                     ),
                     child: Column(
                       children: [
+                        SizedBox(height: 10),
                         Container(
                           alignment: Alignment.topLeft,
                           child: Stepper(
+                            physics: NeverScrollableScrollPhysics(),
                             steps: _myStep(),
                             currentStep: _currentStep,
                             onStepContinue: () {
-                              if (_currentStep < _myStep().length - 1) {
+                              if (_currentStep == 0) {
+                                //vpn named
+                                if (_userNameController.text.isEmpty) {
+                                  setState(() {
+                                    _errUsername = true;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _errUsername = false;
+                                    _currentStep = _currentStep + 1;
+                                  });
+                                }
+                                // setState(() {
+                                //   _currentStep = _currentStep + 1;
+                                // });
+                              } else if (_currentStep == 1) {
+                                //server location
                                 setState(() {
                                   _currentStep = _currentStep + 1;
                                 });
-                              } else {
-                                //done step
                               }
                             },
                             onStepCancel: () {
@@ -109,12 +139,42 @@ class _AddVPNState extends State<AddVPN> {
       ),
       Step(
         title: Text('Choose your server location'),
-        content: buildTextField(),
+        content: DropdownButton(
+          items: _location.map((String value) {
+            return DropdownMenuItem<String>(
+              child: Text(
+                value.toString(),
+              ),
+              value: value,
+            );
+          }).toList(),
+          value: _selectedLocation,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedLocation = newValue;
+            });
+          },
+        ),
         isActive: _currentStep >= 1,
       ),
       Step(
         title: Text('Select your vpn duration'),
-        content: buildTextField(),
+        content: DropdownButton(
+          items: _duration.map((String value) {
+            return DropdownMenuItem<String>(
+              child: Text(
+                value.toString(),
+              ),
+              value: value,
+            );
+          }).toList(),
+          value: _currentDuration,
+          onChanged: (String? newValue) {
+            setState(() {
+              _currentDuration = newValue;
+            });
+          },
+        ),
         isActive: _currentStep >= 2,
       ),
     ];
@@ -129,7 +189,6 @@ class _AddVPNState extends State<AddVPN> {
         errorText:
             _errUsername == true ? 'Please enter your vpn username' : null,
         labelText: 'Enter your vpn username',
-        border: OutlineInputBorder(),
       ),
     );
   }

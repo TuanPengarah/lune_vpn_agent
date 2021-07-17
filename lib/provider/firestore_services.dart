@@ -9,6 +9,8 @@ class DatabaseAPI extends ChangeNotifier {
     required String uid,
     required String username,
     required String email,
+    required String serverLocation,
+    required String duration,
   }) async {
     String? status;
     try {
@@ -16,6 +18,8 @@ class DatabaseAPI extends ChangeNotifier {
         'Email': email,
         'Agent': 'User',
         'Username': username,
+        'serverLocation': serverLocation,
+        'Duration': duration,
         'Status': 'Pending',
         'isPay': false,
         'isPending': true,
