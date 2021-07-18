@@ -9,8 +9,9 @@ class DatabaseAPI extends ChangeNotifier {
     required String uid,
     required String username,
     required String email,
-    required String serverLocation,
-    required String duration,
+    required String? serverLocation,
+    required String? duration,
+    required int? price,
   }) async {
     String? status;
     try {
@@ -22,7 +23,9 @@ class DatabaseAPI extends ChangeNotifier {
         'Duration': duration,
         'Status': 'Pending',
         'isPay': false,
+        'Remarks': '',
         'isPending': true,
+        'Harga': price,
         'timeStamp': FieldValue.serverTimestamp(),
       };
       //add to agent collection

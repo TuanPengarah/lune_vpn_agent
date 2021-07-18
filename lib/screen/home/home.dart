@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   User? _user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,63 +37,74 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Container(
-          child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('Agent')
-                  .doc(_user?.uid)
-                  .collection('Order')
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 10),
-                        Text('Loading'),
-                      ],
-                    ),
-                  );
-                }
-                if (snapshot.data!.docs.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.browser_not_supported,
-                            size: 90,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'You can request VPN by pressing on + icon',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('Agent')
+              .doc(_user?.uid)
+              .collection('Order')
+              .orderBy('timeStamp', descending: true)
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                    Text('Loading'),
+                  ],
+                ),
+              );
+            }
+            if (snapshot.data!.docs.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.browser_not_supported,
+                        size: 90,
+                        color: Colors.grey,
                       ),
-                    ),
-                  );
-                }
-                return ListView(
-                  children: snapshot.data!.docs.map((doc) {
-                    return CardOrder(
+                      SizedBox(height: 10),
+                      Text(
+                        'You can request VPN by pressing on + icon',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return ListView(
+              physics: BouncingScrollPhysics(),
+              children: snapshot.data!.docs.map((doc) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12),
+                  child: CardOrder(
                       userName: doc['Username'],
                       status: doc['Status'],
                       isPending: doc['isPending'],
-                    );
-                  }).toList(),
+                      serverLocation: doc['serverLocation'],
+                      harga: doc['Harga'],
+                      duration: doc['Duration'],
+                      remarks: doc['Remarks']),
                 );
-              })),
+              }).toList(),
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab',
         tooltip: 'Request VPN',

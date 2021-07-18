@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
+import 'package:lune_vpn_agent/ui/textbar_addVPN.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 
@@ -15,25 +16,43 @@ class AddVPN extends StatefulWidget {
 
 class _AddVPNState extends State<AddVPN> {
   final _userNameController = TextEditingController();
-  bool _isMobile = false;
   bool _errUsername = false;
   User? _user = FirebaseAuth.instance.currentUser;
   int _currentStep = 0;
   List<String> _location = ['Malaysia', 'Singapore'];
   String? _selectedLocation = 'Malaysia';
-  List<String> _duration = ['1 Day Free Trial', '15 Days', '30 Days'];
+  List<String> _duration = ['1 Days', '15 Days', '30 Days', '60 Days'];
   String? _currentDuration = '30 Days';
+  int? _priceVPN;
+
+  String? _price() {
+    String? status;
+    if (_currentDuration == '1 Days') {
+      status = 'Free Trial';
+      _priceVPN = 0;
+    } else if (_currentDuration == '15 Days') {
+      status = 'RM: 5';
+      _priceVPN = 5;
+    } else if (_currentDuration == '30 Days') {
+      status = 'RM: 9';
+      _priceVPN = 9;
+    } else if (_currentDuration == '60 Days') {
+      status = 'RM: 16';
+      _priceVPN = 16;
+    }
+    return status;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Hero(
       tag: 'fab',
       child: LayoutBuilder(builder: (context, constraint) {
-        if (constraint.maxWidth > 800) {
-          _isMobile = false;
-        } else {
-          _isMobile = true;
-        }
+        // if (constraint.maxWidth > 800) {
+        //   _isMobile = false;
+        // } else {
+        //   _isMobile = true;
+        // }
         return Scaffold(
           backgroundColor: Colors.blue,
           body: SafeArea(
@@ -50,6 +69,7 @@ class _AddVPNState extends State<AddVPN> {
                           'Request VPN',
                           style: TextStyle(
                             fontSize: 30,
+                            fontWeight: FontWeight.w800,
                             color: Colors.white,
                           ),
                         ),
@@ -84,7 +104,7 @@ class _AddVPNState extends State<AddVPN> {
                             physics: NeverScrollableScrollPhysics(),
                             steps: _myStep(),
                             currentStep: _currentStep,
-                            onStepContinue: () {
+                            onStepContinue: () async {
                               if (_currentStep == 0) {
                                 //vpn named
                                 if (_userNameController.text.isEmpty) {
@@ -92,6 +112,7 @@ class _AddVPNState extends State<AddVPN> {
                                     _errUsername = true;
                                   });
                                 } else {
+                                  FocusScope.of(context).unfocus();
                                   setState(() {
                                     _errUsername = false;
                                     _currentStep = _currentStep + 1;
@@ -105,6 +126,41 @@ class _AddVPNState extends State<AddVPN> {
                                 setState(() {
                                   _currentStep = _currentStep + 1;
                                 });
+                              } else if (_currentStep == 2) {
+                                //vpn duration
+                                setState(() {
+                                  _currentStep = _currentStep + 1;
+                                });
+                              } else if (_currentStep == 3) {
+                                //confirmation
+                                CustomProgressDialog progressDialog =
+                                    CustomProgressDialog(context, blur: 6);
+                                progressDialog.setLoadingWidget(
+                                    CircularProgressIndicator());
+                                progressDialog.show();
+                                await context
+                                    .read<DatabaseAPI>()
+                                    .createVPN(
+                                        uid: _user!.uid,
+                                        username: _userNameController.text,
+                                        email: _user!.email.toString(),
+                                        serverLocation: _selectedLocation,
+                                        duration: _currentDuration,
+                                        price: _priceVPN)
+                                    .then((s) async {
+                                  if (s == 'completed') {
+                                    progressDialog.dismiss();
+                                    Navigator.of(context).pop();
+                                    await Future.delayed(Duration(seconds: 1));
+                                    showSuccessSnackBar('Request Completed', 2);
+                                  } else {
+                                    progressDialog.dismiss();
+                                    Navigator.of(context).pop();
+                                    await Future.delayed(Duration(seconds: 1));
+                                    showErrorSnackBar(
+                                        'Error: ${s.toString()}', 2);
+                                  }
+                                });
                               }
                             },
                             onStepCancel: () {
@@ -113,7 +169,7 @@ class _AddVPNState extends State<AddVPN> {
                                   _currentStep = _currentStep - 1;
                                 });
                               } else {
-                                _currentStep = 0;
+                                Navigator.of(context).pop();
                               }
                             },
                           ),
@@ -134,7 +190,7 @@ class _AddVPNState extends State<AddVPN> {
     List<Step> _step = [
       Step(
         title: Text('Please name your VPN'),
-        content: buildTextField(),
+        content: buildTextField(_userNameController, _errUsername),
         isActive: _currentStep >= 0,
       ),
       Step(
@@ -177,83 +233,34 @@ class _AddVPNState extends State<AddVPN> {
         ),
         isActive: _currentStep >= 2,
       ),
+      Step(
+        title: Text('Confirmation your selection'),
+        content: Wrap(
+          children: [
+            confirmationWidget(Icons.vpn_key, _userNameController.text),
+            confirmationWidget(
+                Icons.map, '${_selectedLocation.toString()} Server'),
+            confirmationWidget(
+                Icons.calendar_today, _currentDuration.toString()),
+            confirmationWidget(Icons.price_change, _price().toString()),
+          ],
+        ),
+        isActive: _currentStep >= 3,
+      ),
     ];
     return _step;
   }
 
-  TextField buildTextField() {
-    return TextField(
-      textCapitalization: TextCapitalization.words,
-      controller: _userNameController,
-      decoration: InputDecoration(
-        errorText:
-            _errUsername == true ? 'Please enter your vpn username' : null,
-        labelText: 'Enter your vpn username',
+  Padding confirmationWidget(IconData icon, String title) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 15),
+          SizedBox(width: 10),
+          Text(title),
+        ],
       ),
     );
   }
 }
-// IntroViewsFlutter(
-// [
-// PageViewModel(
-// pageColor: Colors.blue,
-// title: Text('Create new username'),
-// body: Text('Please choose your new username to request VPN'),
-// mainImage: Image.asset(
-// 'assets/images/username.png',
-// // width: 280,
-// // height: 280,
-// alignment: Alignment.center,
-// ),
-// ),
-// PageViewModel(
-// pageColor: Colors.blueGrey,
-// title: _isMobile == true ? buildTextField() : subtitle(),
-// body: _isMobile == true ? subtitle() : buildTextField(),
-// mainImage: Image.asset(
-// 'assets/images/points.png',
-// alignment: Alignment.center,
-// ),
-// titleTextStyle: TextStyle(fontSize: 30),
-// bodyTextStyle: TextStyle(fontSize: 20),
-// ),
-// ],
-// onTapDoneButton: () async {
-// CustomProgressDialog progressDialog =
-// CustomProgressDialog(context, blur: 6);
-// progressDialog.setLoadingWidget(CircularProgressIndicator());
-// progressDialog.show();
-// setState(() {
-// _errUsername = false;
-// });
-// if (_userNameController.text.isEmpty) {
-// setState(() {
-// _errUsername = true;
-// });
-// progressDialog.dismiss();
-// } else {
-// await context
-//     .read<DatabaseAPI>()
-//     .createVPN(
-// uid: _user!.uid,
-// username: _userNameController.text.trim(),
-// email: _user!.email.toString())
-//     .then((s) async {
-// if (s == 'completed') {
-// progressDialog.dismiss();
-// Navigator.of(context).pop();
-// await Future.delayed(Duration(seconds: 1));
-// showSuccessSnackBar('Request Completed', 2);
-// } else {
-// progressDialog.dismiss();
-// Navigator.of(context).pop();
-// await Future.delayed(Duration(seconds: 1));
-// showErrorSnackBar('Error: ${s.toString()}', 2);
-// }
-// });
-// }
-// },
-// showNextButton: true,
-// showBackButton: true,
-// showSkipButton: false,
-// );
