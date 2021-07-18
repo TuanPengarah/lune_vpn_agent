@@ -50,7 +50,7 @@ class CardOrder extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'RM $harga',
+                          harga == 0 ? 'Free Trial' : 'RM $harga',
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.grey,

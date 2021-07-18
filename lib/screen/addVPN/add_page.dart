@@ -21,22 +21,27 @@ class _AddVPNState extends State<AddVPN> {
   int _currentStep = 0;
   List<String> _location = ['Malaysia', 'Singapore'];
   String? _selectedLocation = 'Malaysia';
-  List<String> _duration = ['1 Days', '15 Days', '30 Days', '60 Days'];
-  String? _currentDuration = '30 Days';
+  List<String> _duration = [
+    '1 Days Free Trial',
+    '15 Days (RM5)',
+    '30 Days (RM9)',
+    '60 Days (RM16)'
+  ];
+  String? _currentDuration = '30 Days (RM9)';
   int? _priceVPN;
 
   String? _price() {
     String? status;
-    if (_currentDuration == '1 Days') {
+    if (_currentDuration == '1 Days Free Trial') {
       status = 'Free Trial';
       _priceVPN = 0;
-    } else if (_currentDuration == '15 Days') {
+    } else if (_currentDuration == '15 Days (RM5)') {
       status = 'RM: 5';
       _priceVPN = 5;
-    } else if (_currentDuration == '30 Days') {
+    } else if (_currentDuration == '30 Days (RM9)') {
       status = 'RM: 9';
       _priceVPN = 9;
-    } else if (_currentDuration == '60 Days') {
+    } else if (_currentDuration == '60 Days (RM16)') {
       status = 'RM: 16';
       _priceVPN = 16;
     }
@@ -47,142 +52,134 @@ class _AddVPNState extends State<AddVPN> {
   Widget build(BuildContext context) {
     return Hero(
       tag: 'fab',
-      child: LayoutBuilder(builder: (context, constraint) {
-        // if (constraint.maxWidth > 800) {
-        //   _isMobile = false;
-        // } else {
-        //   _isMobile = true;
-        // }
-        return Scaffold(
-          backgroundColor: Colors.blue,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Request VPN',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Fill in the information below to completed your request',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: constraint.maxWidth,
-                    height: constraint.minHeight,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25),
+      child: Scaffold(
+        backgroundColor: Colors.blue,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Request VPN',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 10),
-                        Container(
-                          alignment: Alignment.topLeft,
-                          child: Stepper(
-                            physics: NeverScrollableScrollPhysics(),
-                            steps: _myStep(),
-                            currentStep: _currentStep,
-                            onStepContinue: () async {
-                              if (_currentStep == 0) {
-                                //vpn named
-                                if (_userNameController.text.isEmpty) {
-                                  setState(() {
-                                    _errUsername = true;
-                                  });
-                                } else {
-                                  FocusScope.of(context).unfocus();
-                                  setState(() {
-                                    _errUsername = false;
-                                    _currentStep = _currentStep + 1;
-                                  });
-                                }
-                                // setState(() {
-                                //   _currentStep = _currentStep + 1;
-                                // });
-                              } else if (_currentStep == 1) {
-                                //server location
-                                setState(() {
-                                  _currentStep = _currentStep + 1;
-                                });
-                              } else if (_currentStep == 2) {
-                                //vpn duration
-                                setState(() {
-                                  _currentStep = _currentStep + 1;
-                                });
-                              } else if (_currentStep == 3) {
-                                //confirmation
-                                CustomProgressDialog progressDialog =
-                                    CustomProgressDialog(context, blur: 6);
-                                progressDialog.setLoadingWidget(
-                                    CircularProgressIndicator());
-                                progressDialog.show();
-                                await context
-                                    .read<DatabaseAPI>()
-                                    .createVPN(
-                                        uid: _user!.uid,
-                                        username: _userNameController.text,
-                                        email: _user!.email.toString(),
-                                        serverLocation: _selectedLocation,
-                                        duration: _currentDuration,
-                                        price: _priceVPN)
-                                    .then((s) async {
-                                  if (s == 'completed') {
-                                    progressDialog.dismiss();
-                                    Navigator.of(context).pop();
-                                    await Future.delayed(Duration(seconds: 1));
-                                    showSuccessSnackBar('Request Completed', 2);
-                                  } else {
-                                    progressDialog.dismiss();
-                                    Navigator.of(context).pop();
-                                    await Future.delayed(Duration(seconds: 1));
-                                    showErrorSnackBar(
-                                        'Error: ${s.toString()}', 2);
-                                  }
-                                });
-                              }
-                            },
-                            onStepCancel: () {
-                              if (_currentStep > 0) {
-                                setState(() {
-                                  _currentStep = _currentStep - 1;
-                                });
-                              } else {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 10),
+                    Text(
+                      'Fill in the information below to completed your request',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
                     ),
                   ),
-                ],
+                  child: ListView(
+                    physics: BouncingScrollPhysics(),
+                    children: [
+                      SizedBox(height: 10),
+                      Container(
+                        alignment: Alignment.topLeft,
+                        child: Stepper(
+                          physics: BouncingScrollPhysics(),
+                          steps: _myStep(),
+                          currentStep: _currentStep,
+                          onStepContinue: () async {
+                            if (_currentStep == 0) {
+                              //vpn named
+                              if (_userNameController.text.isEmpty) {
+                                setState(() {
+                                  _errUsername = true;
+                                });
+                              } else {
+                                FocusScope.of(context).unfocus();
+                                setState(() {
+                                  _errUsername = false;
+                                  _currentStep = _currentStep + 1;
+                                });
+                              }
+                              // setState(() {
+                              //   _currentStep = _currentStep + 1;
+                              // });
+                            } else if (_currentStep == 1) {
+                              //server location
+                              setState(() {
+                                _currentStep = _currentStep + 1;
+                              });
+                            } else if (_currentStep == 2) {
+                              //vpn duration
+                              setState(() {
+                                _currentStep = _currentStep + 1;
+                              });
+                            } else if (_currentStep == 3) {
+                              //confirmation
+                              CustomProgressDialog progressDialog =
+                                  CustomProgressDialog(context, blur: 6);
+                              progressDialog.setLoadingWidget(
+                                  CircularProgressIndicator());
+                              progressDialog.show();
+                              await context
+                                  .read<DatabaseAPI>()
+                                  .createVPN(
+                                      uid: _user!.uid,
+                                      username: _userNameController.text,
+                                      email: _user!.email.toString(),
+                                      serverLocation: _selectedLocation,
+                                      duration: _currentDuration,
+                                      price: _priceVPN)
+                                  .then((s) async {
+                                if (s == 'completed') {
+                                  progressDialog.dismiss();
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(Duration(seconds: 1));
+                                  showSuccessSnackBar('Request Completed', 2);
+                                } else {
+                                  progressDialog.dismiss();
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(Duration(seconds: 1));
+                                  showErrorSnackBar(
+                                      'Error: ${s.toString()}', 2);
+                                }
+                              });
+                            }
+                          },
+                          onStepCancel: () {
+                            if (_currentStep > 0) {
+                              setState(() {
+                                _currentStep = _currentStep - 1;
+                              });
+                            } else {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 
