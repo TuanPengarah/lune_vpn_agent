@@ -1,12 +1,14 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
+import 'package:lune_vpn_agent/config/theme_data.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
+import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
+import 'package:lune_vpn_agent/provider/vpn_filter_list.dart';
 import 'package:lune_vpn_agent/screen/addVPN/add_page.dart';
 import 'package:lune_vpn_agent/screen/home/home.dart';
 import 'package:lune_vpn_agent/screen/login/login_page.dart';
@@ -14,19 +16,17 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   Provider.debugCheckInvalidValueType = null;
-  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-  //   systemNavigationBarColor: Colors.blue, // navigation bar color// status bar
-  //   // color
-  // ));
-  runApp(MyApp());
+  await Firebase.initializeApp();
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
+  runApp(MyApp(saveThemeMode: savedThemeMode));
 }
 
 final messengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final AdaptiveThemeMode? saveThemeMode;
+  MyApp({this.saveThemeMode});
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -37,25 +37,28 @@ class MyApp extends StatelessWidget {
         Provider<DatabaseAPI>(
           create: (context) => DatabaseAPI(FirebaseFirestore.instance),
         ),
+        Provider<CurrentUser>(create: (context) => CurrentUser()),
+        ChangeNotifierProvider<VpnFilterList>(
+            create: (context) => VpnFilterList()),
       ],
-      child: MaterialApp(
-        scaffoldMessengerKey: messengerKey,
-        debugShowCheckedModeBanner: false,
-        title: 'Lune VPN',
-        theme: ThemeData(
-          appBarTheme: AppBarTheme(
-            brightness: Brightness.dark,
-          ),
-          textTheme: GoogleFonts.robotoTextTheme(
-            Theme.of(context).textTheme,
-          ),
-          primarySwatch: Colors.blue,
-        ),
-        initialRoute: MyRoutes.login,
-        routes: {
-          MyRoutes.login: (context) => LoginServices(),
-          MyRoutes.add: (context) => AddVPN(),
-          MyRoutes.home: (context) => HomePage(),
+      child: AdaptiveTheme(
+        initial: saveThemeMode ?? AdaptiveThemeMode.light,
+        light: MyThemes.lightTheme,
+        dark: MyThemes.darkTheme,
+        builder: (theme, darktheme) {
+          return MaterialApp(
+            scaffoldMessengerKey: messengerKey,
+            debugShowCheckedModeBanner: false,
+            title: 'Lune VPN',
+            theme: theme,
+            darkTheme: darktheme,
+            initialRoute: MyRoutes.login,
+            routes: {
+              MyRoutes.login: (context) => LoginServices(),
+              MyRoutes.add: (context) => AddVPN(),
+              MyRoutes.home: (context) => HomePage(),
+            },
+          );
         },
       ),
     );
@@ -70,13 +73,27 @@ class LoginServices extends StatefulWidget {
 }
 
 class _LoginServicesState extends State<LoginServices> {
-  final _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
-    if (_auth.currentUser != null) {
-      return HomePage();
-    } else {
-      return LoginPage();
-    }
+    return StreamBuilder<User?>(
+        stream: _auth.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            print('user login');
+            Provider.of<CurrentUser>(context, listen: false).checkLogin(true);
+            Provider.of<CurrentUser>(context, listen: false)
+                .setEmail(_auth.currentUser!.email);
+            Provider.of<CurrentUser>(context, listen: false)
+                .setUID(_auth.currentUser!.uid);
+            Provider.of<CurrentUser>(context, listen: false)
+                .setUserName(_auth.currentUser!.displayName);
+            return HomePage();
+          } else {
+            print('user not login');
+            return LoginPage();
+          }
+        });
   }
 }

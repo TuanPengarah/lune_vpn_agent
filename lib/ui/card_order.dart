@@ -21,10 +21,14 @@ class CardOrder extends StatelessWidget {
 
   IconData? _statusIcon() {
     IconData? icon;
-    if (status == 'Done') {
+    if (status == 'Active') {
       icon = Icons.done;
-    } else if (equals('Error', status)) {
+    } else if (equals('Expired', status)) {
       icon = Icons.error;
+    } else if (equals('Pending', status)) {
+      icon = Icons.pending;
+    } else if (equals('Canceled', status)) {
+      icon = Icons.cancel_presentation;
     }
     return icon;
   }
@@ -32,6 +36,9 @@ class CardOrder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -60,20 +67,11 @@ class CardOrder extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            status == 'Pending'
-                                ? SizedBox(
-                                    height: 12,
-                                    width: 12,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.grey,
-                                      strokeWidth: 1,
-                                    ),
-                                  )
-                                : Icon(
-                                    _statusIcon(),
-                                    color: Colors.grey,
-                                    size: 16,
-                                  ),
+                            Icon(
+                              _statusIcon(),
+                              color: Colors.grey,
+                              size: 16,
+                            ),
                             SizedBox(width: 5),
                             Text(
                               status.toString(),

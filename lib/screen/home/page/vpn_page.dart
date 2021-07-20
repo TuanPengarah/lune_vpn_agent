@@ -1,122 +1,172 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:lune_vpn_agent/config/routes.dart';
-import 'package:lune_vpn_agent/dialog/logout_dialog.dart';
-import 'package:lune_vpn_agent/main.dart';
+import 'package:lune_vpn_agent/config/constant.dart';
+import 'package:lune_vpn_agent/provider/current_user.dart';
+import 'package:lune_vpn_agent/provider/vpn_filter_list.dart';
 import 'package:lune_vpn_agent/ui/card_order.dart';
+import 'package:lune_vpn_agent/ui/menu/vpn_sort.dart';
+import 'package:provider/provider.dart';
 
 class VpnPage extends StatelessWidget {
-  final _user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
+    String? _uid = Provider.of<CurrentUser>(context).uid;
+    bool _isAscending = Provider.of<VpnFilterList>(context).isAscending;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Lune VPN'),
-        actions: [
-          IconButton(
-            tooltip: 'Sign out',
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await showLogoutDialog(context).then((logout) {
-                if (logout == true) {
-                  Navigator.pushReplacementNamed(context, MyRoutes.login);
-                }
-                print(logout);
-              });
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('Agent')
-            .doc(_user?.uid)
-            .collection('Order')
-            .orderBy('timeStamp', descending: true)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text('Loading'),
-                ],
+        body: CustomScrollView(
+      physics: BouncingScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          title: Text('Vpn User'),
+          floating: true,
+          actions: [
+            PopupMenuButton<IconMenu>(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            );
-          }
-          if (snapshot.data!.docs.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.browser_not_supported,
-                      size: 90,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'You can request VPN by pressing on + icon',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey,
+              icon: Icon(
+                Icons.view_list,
+                color: Colors.white,
+              ),
+              onSelected: (value) {},
+              itemBuilder: (context) => MenuVpnSort.items
+                  .map(
+                    (i) => PopupMenuItem<IconMenu>(
+                      value: i,
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          i.icon,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        title: Text(i.text),
                       ),
                     ),
-                  ],
-                ),
+                  )
+                  .toList(),
+            ),
+            PopupMenuButton<IconMenu>(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            );
-          }
-
-          return CustomScrollView(
-            physics: BouncingScrollPhysics(),
-            slivers: [
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Column(
-                      children: snapshot.data!.docs.map((doc) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4.0, horizontal: 12),
-                          child: CardOrder(
-                              userName: doc['Username'],
-                              status: doc['Status'],
-                              isPending: doc['isPending'],
-                              serverLocation: doc['serverLocation'],
-                              harga: doc['Harga'],
-                              duration: doc['Duration'],
-                              remarks: doc['Remarks']),
-                        );
-                      }).toList(),
+              icon: Icon(
+                Icons.filter_list,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                switch (value) {
+                  case MenuVpnAscending.ascending:
+                    print('Running');
+                    Provider.of<VpnFilterList>(context, listen: false)
+                        .setAscending(true);
+                    break;
+                  case MenuVpnAscending.descending:
+                    Provider.of<VpnFilterList>(context, listen: false)
+                        .setAscending(false);
+                    break;
+                }
+              },
+              itemBuilder: (context) => MenuVpnAscending.items
+                  .map(
+                    (i) => PopupMenuItem<IconMenu>(
+                      value: i,
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          i.icon,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        title: Text(i.text),
+                      ),
                     ),
-                    SizedBox(height: 80),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab',
-        tooltip: 'Request VPN',
-        onPressed: () {
-          messengerKey.currentState!.removeCurrentSnackBar();
-          Navigator.pushNamed(context, MyRoutes.add);
-        },
-        child: Icon(
-          Icons.add,
+                  )
+                  .toList(),
+            ),
+          ],
         ),
-      ),
-    );
+        SliverList(
+          delegate: SliverChildListDelegate([
+            StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('Agent')
+                    .doc(_uid)
+                    .collection('Order')
+                    .orderBy('timeStamp', descending: _isAscending)
+                    // .where('Status', isEqualTo: 'Expired')
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height / 1.5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 10),
+                          Text('Loading'),
+                        ],
+                      ),
+                    );
+                  }
+                  if (snapshot.data!.docs.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height / 1.5,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.browser_not_supported,
+                              size: kIconNotFound,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'You can request VPN by pressing on + icon',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  return Column(
+                      children: snapshot.data!.docs.map((doc) {
+                    return Padding(
+                      padding: kPadding,
+                      child: CardOrder(
+                          userName: doc['Username'],
+                          status: doc['Status'],
+                          isPending: doc['isPending'],
+                          serverLocation: doc['serverLocation'],
+                          harga: doc['Harga'],
+                          duration: doc['Duration'],
+                          remarks: doc['Remarks']),
+                    );
+                  }).toList());
+                })
+          ]),
+        ),
+      ],
+    ));
+  }
+
+  void _handleClick(String? value, BuildContext context) {
+    switch (value) {
+      case 'Ascending':
+        Provider.of<VpnFilterList>(context, listen: false).setAscending(true);
+        break;
+      case 'Descending':
+        Provider.of<VpnFilterList>(context, listen: false).setAscending(false);
+        break;
+    }
   }
 }

@@ -53,7 +53,7 @@ class _AddVPNState extends State<AddVPN> {
     return Hero(
       tag: 'fab',
       child: Scaffold(
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class _AddVPNState extends State<AddVPN> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),

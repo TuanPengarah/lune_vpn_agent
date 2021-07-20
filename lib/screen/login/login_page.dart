@@ -1,6 +1,6 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
@@ -70,9 +70,10 @@ class _LoginPageState extends State<LoginPage> {
           await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
         }
         _loginButton.success();
-        showSuccessSnackBar('Login Success', 2);
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushReplacementNamed(context, MyRoutes.home);
+
+        Future.delayed(Duration(seconds: 1), () {
+          showSuccessSnackBar('Login Success', 2);
+          // Navigator.pushReplacementNamed(context, MyRoutes.home);
         });
       } else {
         showErrorSnackBar('Aw Snap! An error occured: $e', 2);
@@ -95,6 +96,24 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         leading: Icon(Icons.vpn_key),
         title: Text('Login to Lune VPN'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.dark_mode),
+            onPressed: () {
+              AdaptiveTheme.of(context).toggleThemeMode();
+              // isDarkMode == true
+              //     ? mode = ThemeMode.dark
+              //     : mode = ThemeMode.light;
+              //
+              // _isDarkMode == true
+              //     ? Provider.of<ThemeNotifier>(context, listen: false)
+              //         .toggleTheme(false)
+              //     : Provider.of<ThemeNotifier>(context, listen: false)
+              //         .toggleTheme(true);
+              // print(_isDarkMode);
+            },
+          )
+        ],
       ),
       body: LayoutBuilder(builder: (context, constraint) {
         if (constraint.maxWidth >= 800) {
