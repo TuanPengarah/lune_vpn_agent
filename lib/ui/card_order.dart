@@ -9,6 +9,7 @@ class CardOrder extends StatelessWidget {
   final int? harga;
   final bool? isPending;
   final String? remarks;
+  final Function()? onPressed;
   CardOrder({
     this.userName,
     this.status,
@@ -17,6 +18,7 @@ class CardOrder extends StatelessWidget {
     this.serverLocation,
     this.harga,
     this.remarks,
+    this.onPressed,
   });
 
   IconData? _statusIcon() {
@@ -39,56 +41,59 @@ class CardOrder extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            title(),
-            SizedBox(height: 5),
-            information(Icons.timer, duration.toString()),
-            information(Icons.location_on, serverLocation.toString()),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          harga == 0 ? 'Free Trial' : 'RM $harga',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _statusIcon(),
+      child: InkWell(
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              title(),
+              SizedBox(height: 5),
+              information(Icons.timer, duration.toString()),
+              information(Icons.location_on, serverLocation.toString()),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            harga == 0 ? 'Free Trial' : 'RM $harga',
+                            style: TextStyle(
+                              fontSize: 20,
                               color: Colors.grey,
-                              size: 16,
                             ),
-                            SizedBox(width: 5),
-                            Text(
-                              status.toString(),
-                              style: TextStyle(
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _statusIcon(),
                                 color: Colors.grey,
-                                fontSize: 12,
+                                size: 16,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                              SizedBox(width: 5),
+                              Text(
+                                status.toString(),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

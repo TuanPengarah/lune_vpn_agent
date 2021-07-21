@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/config/constant.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/provider/vpn_filter_list.dart';
+import 'package:lune_vpn_agent/screen/overview/user_vpn_overview.dart';
 import 'package:lune_vpn_agent/ui/card_order.dart';
 import 'package:lune_vpn_agent/ui/menu/vpn_sort.dart';
 import 'package:provider/provider.dart';
+import 'package:dismissible_page/dismissible_page.dart';
 
 class VpnPage extends StatelessWidget {
   @override
@@ -208,14 +210,24 @@ class VpnPage extends StatelessWidget {
                       children: snapshot.data!.docs.map((doc) {
                     return Padding(
                       padding: kPadding,
-                      child: CardOrder(
-                          userName: doc['Username'],
-                          status: doc['Status'],
-                          isPending: doc['isPending'],
-                          serverLocation: doc['serverLocation'],
-                          harga: doc['Harga'],
-                          duration: doc['Duration'],
-                          remarks: doc['Remarks']),
+                      child: Hero(
+                        tag: '${doc.id}',
+                        child: CardOrder(
+                            onPressed: () {
+                              context.pushTransparentRoute(
+                                VpnOverview(
+                                  uid: doc.id,
+                                ),
+                              );
+                            },
+                            userName: doc['Username'],
+                            status: doc['Status'],
+                            isPending: doc['isPending'],
+                            serverLocation: doc['serverLocation'],
+                            harga: doc['Harga'],
+                            duration: doc['Duration'],
+                            remarks: doc['Remarks']),
+                      ),
                     );
                   }).toList());
                 }),

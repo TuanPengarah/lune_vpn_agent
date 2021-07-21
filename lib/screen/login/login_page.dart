@@ -92,25 +92,21 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         leading: Icon(Icons.vpn_key),
         title: Text('Login to Lune VPN'),
         actions: [
           IconButton(
-            icon: Icon(Icons.dark_mode),
+            icon: Icon(
+              Icons.dark_mode,
+              color: isDarkMode ? Colors.yellow : Colors.white,
+            ),
             onPressed: () {
-              AdaptiveTheme.of(context).toggleThemeMode();
-              // isDarkMode == true
-              //     ? mode = ThemeMode.dark
-              //     : mode = ThemeMode.light;
-              //
-              // _isDarkMode == true
-              //     ? Provider.of<ThemeNotifier>(context, listen: false)
-              //         .toggleTheme(false)
-              //     : Provider.of<ThemeNotifier>(context, listen: false)
-              //         .toggleTheme(true);
-              // print(_isDarkMode);
+              isDarkMode
+                  ? AdaptiveTheme.of(context).setLight()
+                  : AdaptiveTheme.of(context).setDark();
             },
           )
         ],
@@ -133,6 +129,11 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Image.asset(
+                      'assets/images/vpn.png',
+                      scale: 3,
+                    ),
+                    SizedBox(height: 20),
                     textBar(
                       textController: _emailController,
                       isPassword: false,

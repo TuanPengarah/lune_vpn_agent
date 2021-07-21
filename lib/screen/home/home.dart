@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   String? _expired = '--';
   String? _canceled = '--';
   bool _visibleFAB = true;
+
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

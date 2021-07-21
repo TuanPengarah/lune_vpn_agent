@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:lune_vpn_agent/config/firebase_file.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FirebaseStorageAPI {
@@ -28,17 +29,15 @@ class FirebaseStorageAPI {
         .toList();
   }
 
-  static Future<String?> downloadFile(Reference? ref) async {
-    String? status;
+  static Future downloadFile(Reference? ref) async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/${ref!.name}');
     try {
       await ref.writeToFile(file);
-      status = 'download-completed';
+      Share.shareFiles(['${dir.path}/${ref.name}']);
     } on FirebaseException catch (e) {
-      status = e.toString();
+      showErrorSnackBar('Aw Snap, An error occured: ${e.code}', 2);
     }
-    return status;
   }
 
   static Future launchWeb(String? download) async {
