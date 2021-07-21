@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/config/constant.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
@@ -13,6 +12,8 @@ class VpnPage extends StatelessWidget {
   Widget build(BuildContext context) {
     String? _uid = Provider.of<CurrentUser>(context).uid;
     bool _isAscending = Provider.of<VpnFilterList>(context).isAscending;
+    bool _isAll = Provider.of<VpnFilterList>(context).isAll;
+    String _status = Provider.of<VpnFilterList>(context).status;
     return Scaffold(
         body: CustomScrollView(
       physics: BouncingScrollPhysics(),
@@ -22,6 +23,7 @@ class VpnPage extends StatelessWidget {
           floating: true,
           actions: [
             PopupMenuButton<IconMenu>(
+              tooltip: 'Filter',
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -29,7 +31,30 @@ class VpnPage extends StatelessWidget {
                 Icons.view_list,
                 color: Colors.white,
               ),
-              onSelected: (value) {},
+              onSelected: (value) {
+                switch (value) {
+                  case MenuVpnSort.all:
+                    context.read<VpnFilterList>().setAllFilter(true);
+                    context.read<VpnFilterList>().setStatus('All');
+                    break;
+                  case MenuVpnSort.pending:
+                    context.read<VpnFilterList>().setAllFilter(false);
+                    context.read<VpnFilterList>().setStatus('Pending');
+                    break;
+                  case MenuVpnSort.active:
+                    context.read<VpnFilterList>().setAllFilter(false);
+                    context.read<VpnFilterList>().setStatus('Active');
+                    break;
+                  case MenuVpnSort.expired:
+                    context.read<VpnFilterList>().setAllFilter(false);
+                    context.read<VpnFilterList>().setStatus('Expired');
+                    break;
+                  case MenuVpnSort.canceled:
+                    context.read<VpnFilterList>().setAllFilter(false);
+                    context.read<VpnFilterList>().setStatus('Canceled');
+                    break;
+                }
+              },
               itemBuilder: (context) => MenuVpnSort.items
                   .map(
                     (i) => PopupMenuItem<IconMenu>(
@@ -47,6 +72,7 @@ class VpnPage extends StatelessWidget {
                   .toList(),
             ),
             PopupMenuButton<IconMenu>(
+              tooltip: 'Order by',
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -87,14 +113,53 @@ class VpnPage extends StatelessWidget {
         ),
         SliverList(
           delegate: SliverChildListDelegate([
+            SizedBox(height: 30),
+            Center(
+              child: Container(
+                width: 220,
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    text: 'Filtering vpn list in ',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: '$_status',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      TextSpan(text: ' type with a '),
+                      TextSpan(
+                        text: _isAscending == true ? 'Ascending' : 'Descending',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      TextSpan(text: ' order!'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 30),
             StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('Agent')
-                    .doc(_uid)
-                    .collection('Order')
-                    .orderBy('timeStamp', descending: _isAscending)
-                    // .where('Status', isEqualTo: 'Expired')
-                    .snapshots(),
+                stream: _isAll == true
+                    ? FirebaseFirestore.instance
+                        .collection('Agent')
+                        .doc(_uid)
+                        .collection('Order')
+                        .orderBy('timeStamp', descending: _isAscending)
+                        .snapshots()
+                    : FirebaseFirestore.instance
+                        .collection('Agent')
+                        .doc(_uid)
+                        .collection('Order')
+                        .orderBy('timeStamp', descending: _isAscending)
+                        .where('Status', isEqualTo: '$_status')
+                        .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
@@ -115,7 +180,7 @@ class VpnPage extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Container(
-                        height: MediaQuery.of(context).size.height / 1.5,
+                        height: MediaQuery.of(context).size.height / 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,7 +192,8 @@ class VpnPage extends StatelessWidget {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'You can request VPN by pressing on + icon',
+                              'No VPN User found! You can request VPN by '
+                              'pressing on + icon',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.grey,
@@ -152,21 +218,11 @@ class VpnPage extends StatelessWidget {
                           remarks: doc['Remarks']),
                     );
                   }).toList());
-                })
+                }),
+            SizedBox(height: 60),
           ]),
         ),
       ],
     ));
-  }
-
-  void _handleClick(String? value, BuildContext context) {
-    switch (value) {
-      case 'Ascending':
-        Provider.of<VpnFilterList>(context, listen: false).setAscending(true);
-        break;
-      case 'Descending':
-        Provider.of<VpnFilterList>(context, listen: false).setAscending(false);
-        break;
-    }
   }
 }

@@ -4,9 +4,9 @@ class MenuVpnSort {
   static const items = <IconMenu>[
     all,
     active,
-    canceled,
     pending,
     expired,
+    canceled,
   ];
 
   static const all = IconMenu(

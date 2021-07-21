@@ -34,8 +34,8 @@ class MyApp extends StatelessWidget {
         Provider<AuthenticationServices>(
           create: (context) => AuthenticationServices(FirebaseAuth.instance),
         ),
-        Provider<DatabaseAPI>(
-          create: (context) => DatabaseAPI(FirebaseFirestore.instance),
+        Provider<FirebaseFirestoreAPI>(
+          create: (context) => FirebaseFirestoreAPI(FirebaseFirestore.instance),
         ),
         Provider<CurrentUser>(create: (context) => CurrentUser()),
         ChangeNotifierProvider<VpnFilterList>(

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class DatabaseAPI extends ChangeNotifier {
+class FirebaseFirestoreAPI extends ChangeNotifier {
   final FirebaseFirestore _firestore;
-  DatabaseAPI(this._firestore);
+  FirebaseFirestoreAPI(this._firestore);
 
   Future<String?> createVPN({
     required String uid,

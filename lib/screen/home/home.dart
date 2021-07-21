@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   String? _active = '--';
   String? _expired = '--';
   String? _canceled = '--';
+  bool _visibleFAB = true;
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -76,7 +77,9 @@ class _HomePageState extends State<HomePage> {
                   canceled: _canceled,
                 ),
                 VpnPage(),
-                FilePage(),
+                FilePage(
+                  uid: uid,
+                ),
                 ProfilePage(),
               ],
             );
@@ -88,27 +91,37 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _currentPages = page;
           });
+          if (page == 2) {
+            _visibleFAB = false;
+          } else {
+            _visibleFAB = true;
+          }
         },
         items: [
           BottomNavigationBarItem(
+            tooltip: 'Your Dashboard',
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
+            tooltip: 'Vpn User',
             icon: Icon(Icons.vpn_key),
             label: 'VPN',
           ),
           BottomNavigationBarItem(
+            tooltip: 'Vpn Files',
             icon: Icon(Icons.download),
             label: 'File',
           ),
           BottomNavigationBarItem(
+            tooltip: 'Managed your profile',
             icon: Icon(Icons.account_circle),
             label: 'Profile',
           ),
         ],
       ),
       floatingActionButton: SpeedDial(
+        visible: _visibleFAB,
         spaceBetweenChildren: 10,
         tooltip: 'Menu',
         heroTag: 'fab',

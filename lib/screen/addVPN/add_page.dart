@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
+import 'package:lune_vpn_agent/ui/circular_loading_dialog.dart';
 import 'package:lune_vpn_agent/ui/textbar_addVPN.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
@@ -134,10 +135,10 @@ class _AddVPNState extends State<AddVPN> {
                               CustomProgressDialog progressDialog =
                                   CustomProgressDialog(context, blur: 6);
                               progressDialog.setLoadingWidget(
-                                  CircularProgressIndicator());
+                                  CircularLoadingDialog('Requesting VPN...'));
                               progressDialog.show();
                               await context
-                                  .read<DatabaseAPI>()
+                                  .read<FirebaseFirestoreAPI>()
                                   .createVPN(
                                       uid: _user!.uid,
                                       username: _userNameController.text,
@@ -192,41 +193,47 @@ class _AddVPNState extends State<AddVPN> {
       ),
       Step(
         title: Text('Choose your server location'),
-        content: DropdownButton(
-          items: _location.map((String value) {
-            return DropdownMenuItem<String>(
-              child: Text(
-                value.toString(),
-              ),
-              value: value,
-            );
-          }).toList(),
-          value: _selectedLocation,
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedLocation = newValue;
-            });
-          },
+        content: Container(
+          alignment: Alignment.centerLeft,
+          child: DropdownButton(
+            items: _location.map((String value) {
+              return DropdownMenuItem<String>(
+                child: Text(
+                  value.toString(),
+                ),
+                value: value,
+              );
+            }).toList(),
+            value: _selectedLocation,
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedLocation = newValue;
+              });
+            },
+          ),
         ),
         isActive: _currentStep >= 1,
       ),
       Step(
         title: Text('Select your vpn duration'),
-        content: DropdownButton(
-          items: _duration.map((String value) {
-            return DropdownMenuItem<String>(
-              child: Text(
-                value.toString(),
-              ),
-              value: value,
-            );
-          }).toList(),
-          value: _currentDuration,
-          onChanged: (String? newValue) {
-            setState(() {
-              _currentDuration = newValue;
-            });
-          },
+        content: Container(
+          alignment: Alignment.centerLeft,
+          child: DropdownButton(
+            items: _duration.map((String value) {
+              return DropdownMenuItem<String>(
+                child: Text(
+                  value.toString(),
+                ),
+                value: value,
+              );
+            }).toList(),
+            value: _currentDuration,
+            onChanged: (String? newValue) {
+              setState(() {
+                _currentDuration = newValue;
+              });
+            },
+          ),
         ),
         isActive: _currentStep >= 2,
       ),
