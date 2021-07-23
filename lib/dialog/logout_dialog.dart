@@ -6,11 +6,19 @@ import 'package:provider/provider.dart';
 Future<bool?> showLogoutDialog(BuildContext context) async {
   bool? isLogout = false;
   AlertDialog alert = AlertDialog(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
     title: Text('Sign Out'),
     content: Text('Are you sure want to sign out?'),
     actions: [
       TextButton(
-        child: Text('Cancel'),
+        child: Text(
+          'Cancel',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         onPressed: () {
           isLogout = false;
           Navigator.of(context).pop();
@@ -20,6 +28,7 @@ Future<bool?> showLogoutDialog(BuildContext context) async {
         child: Text(
           'Sign Out',
           style: TextStyle(
+            fontWeight: FontWeight.w800,
             color: Colors.red,
           ),
         ),

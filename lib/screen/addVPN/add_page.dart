@@ -140,12 +140,14 @@ class _AddVPNState extends State<AddVPN> {
                               await context
                                   .read<FirebaseFirestoreAPI>()
                                   .createVPN(
-                                      uid: _user!.uid,
-                                      username: _userNameController.text,
-                                      email: _user!.email.toString(),
-                                      serverLocation: _selectedLocation,
-                                      duration: _currentDuration,
-                                      price: _priceVPN)
+                                    uid: _user!.uid,
+                                    username: _userNameController.text,
+                                    email: _user!.email.toString(),
+                                    serverLocation: _selectedLocation,
+                                    duration: _currentDuration,
+                                    price: _priceVPN,
+                                    isReport: false,
+                                  )
                                   .then((s) async {
                                 if (s == 'completed') {
                                   progressDialog.dismiss();
@@ -262,7 +264,11 @@ class _AddVPNState extends State<AddVPN> {
         children: [
           Icon(icon, size: 15),
           SizedBox(width: 10),
-          Text(title),
+          Expanded(
+            child: Text(
+              title,
+            ),
+          ),
         ],
       ),
     );

@@ -120,10 +120,10 @@ class HomeNewsPage extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(13.0),
-                                  child: ExpandablePanel(
-                                    header: Column(
+                                child: ExpandablePanel(
+                                  header: Padding(
+                                    padding: const EdgeInsets.all(13.0),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
@@ -144,22 +144,33 @@ class HomeNewsPage extends StatelessWidget {
                                         SizedBox(height: 15),
                                       ],
                                     ),
-                                    collapsed: Text(
+                                  ),
+                                  collapsed: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 13.0, vertical: 5),
+                                    child: Text(
                                       doc['Subtitle'],
                                       style: TextStyle(
                                         color: Colors.grey,
                                       ),
                                     ),
-                                    expanded: Text(doc['Content']),
-                                    theme: ExpandableThemeData(
-                                      tapBodyToExpand: true,
-                                      tapBodyToCollapse: true,
-                                      tapHeaderToExpand: true,
-                                      iconColor: Theme.of(context)
-                                          .textTheme
-                                          .bodyText1!
-                                          .color,
+                                  ),
+                                  expanded: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(doc['Content']),
+                                  ),
+                                  theme: ExpandableThemeData(
+                                    inkWellBorderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
                                     ),
+                                    tapBodyToExpand: true,
+                                    tapBodyToCollapse: true,
+                                    tapHeaderToExpand: true,
+                                    iconColor: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1!
+                                        .color,
                                   ),
                                 ),
                               );

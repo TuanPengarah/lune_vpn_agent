@@ -217,6 +217,15 @@ class VpnPage extends StatelessWidget {
                               context.pushTransparentRoute(
                                 VpnOverview(
                                   uid: doc.id,
+                                  isPending: doc['isPending'],
+                                  status: doc['Status'],
+                                  userName: doc['Username'],
+                                  price: doc['Harga'],
+                                  email: doc['Email'],
+                                  location: doc['serverLocation'],
+                                  duration: doc['Duration'],
+                                  remarks: doc['Remarks'],
+                                  timeStamp: doc['timeStamp'],
                                 ),
                               );
                             },

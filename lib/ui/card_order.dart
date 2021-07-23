@@ -23,7 +23,7 @@ class CardOrder extends StatelessWidget {
 
   IconData? _statusIcon() {
     IconData? icon;
-    if (status == 'Active') {
+    if (equals('Active', status)) {
       icon = Icons.done;
     } else if (equals('Expired', status)) {
       icon = Icons.error;
@@ -42,6 +42,8 @@ class CardOrder extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onLongPress: () {},
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -105,10 +107,13 @@ class CardOrder extends StatelessWidget {
       children: [
         Icon(Icons.person),
         SizedBox(width: 10),
-        Text(
-          userName.toString(),
-          style: TextStyle(
-            fontSize: 18,
+        Expanded(
+          child: Text(
+            userName.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 18,
+            ),
           ),
         ),
       ],
