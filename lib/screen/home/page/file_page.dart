@@ -30,8 +30,7 @@ class _FilePageState extends State<FilePage> {
               tooltip: 'Refresh',
               onPressed: () async {
                 setState(() {
-                  futureFiles =
-                      FirebaseStorageAPI.listAll('ovpn/${widget.uid}');
+                  futureFiles = FirebaseStorageAPI.listAll('ovpn/');
                 });
               },
               icon: Icon(Icons.refresh),
@@ -57,8 +56,34 @@ class _FilePageState extends State<FilePage> {
                     ),
                   );
                 default:
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Some error occurred!'));
+                  if (snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.assignment_late,
+                              color: Colors.grey,
+                              size: 100,
+                            ),
+                            SizedBox(height: 20),
+                            Text('Uh Oh! Vpn files not found!'),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  futureFiles =
+                                      FirebaseStorageAPI.listAll('ovpn/');
+                                });
+                              },
+                              child: Text('Refresh'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   } else {
                     final files = snapshot.data!;
                     return Column(

@@ -5,6 +5,11 @@ class CurrentUser extends ChangeNotifier {
   String? username;
   String? uid;
   String? email;
+  int? myMoney = 0;
+
+  setMoney(int? newMoney) {
+    myMoney = newMoney;
+  }
 
   checkLogin(bool newValue) {
     isLogin = newValue;

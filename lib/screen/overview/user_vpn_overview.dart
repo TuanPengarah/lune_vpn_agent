@@ -272,7 +272,7 @@ class VpnOverview extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),

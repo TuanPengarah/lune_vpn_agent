@@ -1,8 +1,8 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
+import 'package:lune_vpn_agent/dialog/topup_diaolog.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/screen/home/page/file_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/news_page.dart';
@@ -30,8 +30,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     String? uid = Provider.of<CurrentUser>(context).uid;
+    int? _money = context.watch<CurrentUser>().myMoney;
     return Scaffold(
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _currentPages = page;
           });
-          if (page == 2) {
+          if (page >= 2) {
             _visibleFAB = false;
           } else {
             _visibleFAB = true;
@@ -144,19 +144,8 @@ class _HomePageState extends State<HomePage> {
           SpeedDialChild(
             label: 'Topup Account',
             child: Icon(Icons.account_balance_wallet),
-            onTap: () {},
-          ),
-          SpeedDialChild(
-            backgroundColor:
-                isDarkMode ? Theme.of(context).primaryColor : Colors.white,
-            label: isDarkMode ? 'Light Mode' : 'Dark Mode',
-            child: Icon(
-              isDarkMode ? Icons.lightbulb : Icons.dark_mode,
-            ),
             onTap: () {
-              isDarkMode
-                  ? AdaptiveTheme.of(context).setLight()
-                  : AdaptiveTheme.of(context).setDark();
+              topupDialog(context, _money);
             },
           ),
         ],
