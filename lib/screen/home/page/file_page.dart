@@ -16,8 +16,8 @@ class _FilePageState extends State<FilePage> {
 
   @override
   void initState() {
-    futureFiles = FirebaseStorageAPI.listAll('ovpn/${widget.uid}');
     super.initState();
+    futureFiles = FirebaseStorageAPI.listAll('ovpn/');
   }
 
   @override

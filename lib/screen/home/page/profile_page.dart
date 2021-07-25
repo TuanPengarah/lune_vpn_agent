@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       _devices = '${webBrowserInfo.platform} | ${webBrowserInfo.product}';
     } else {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      _devices = '${androidInfo.brand} ${androidInfo.model}';
+      _devices = '${androidInfo.brand} | ${androidInfo.model}';
     }
   }
 
@@ -147,6 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),
                                 ),
+                                splashFactory: InkSplash.splashFactory,
                               ),
                               onPressed: () async {
                                 await showLogoutDialog(context).then((logout) {
