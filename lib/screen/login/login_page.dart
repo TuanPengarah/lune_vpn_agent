@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
+import 'package:lune_vpn_agent/ui/logo.dart';
 import 'package:lune_vpn_agent/ui/textbar.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:validators/validators.dart';
@@ -129,10 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/vpn.png',
-                      scale: 3,
-                    ),
+                    Logo(),
                     SizedBox(height: 20),
                     textBar(
                       textController: _emailController,

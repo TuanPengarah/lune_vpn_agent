@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lune_vpn_agent/dialog/topup_diaolog.dart';
+import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
@@ -28,8 +30,29 @@ class _AddVPNState extends State<AddVPN> {
     '30 Days (RM9)',
     '60 Days (RM16)'
   ];
+  List<String> _durationNormal = [
+    '15 Days (RM7)',
+    '30 Days (RM12)',
+    '60 Days (RM18)'
+  ];
   String? _currentDuration = '30 Days (RM9)';
+  String? _currentNormalDuration = '30 Days (RM12)';
   int? _priceVPN;
+
+  String? _normalPrice() {
+    String? status;
+    if (_currentNormalDuration == '15 Days (RM7)') {
+      status = 'RM: 7';
+      _priceVPN = 7;
+    } else if (_currentNormalDuration == '30 Days (RM12)') {
+      status = 'RM: 12';
+      _priceVPN = 12;
+    } else if (_currentNormalDuration == '60 Days (RM18)') {
+      status = 'RM: 18';
+      _priceVPN = 18;
+    }
+    return status;
+  }
 
   String? _price() {
     String? status;
@@ -51,6 +74,8 @@ class _AddVPNState extends State<AddVPN> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isAgent = context.watch<CurrentUser>().isSuperUser;
+    int? _myMoney = context.watch<CurrentUser>().myMoney;
     return Hero(
       tag: 'fab',
       child: Scaffold(
@@ -64,13 +89,25 @@ class _AddVPNState extends State<AddVPN> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Request VPN',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Request VPN',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Close',
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -101,7 +138,7 @@ class _AddVPNState extends State<AddVPN> {
                         alignment: Alignment.topLeft,
                         child: Stepper(
                           physics: BouncingScrollPhysics(),
-                          steps: _myStep(),
+                          steps: _myStep(_isAgent),
                           currentStep: _currentStep,
                           onStepContinue: () async {
                             if (_currentStep == 0) {
@@ -131,37 +168,43 @@ class _AddVPNState extends State<AddVPN> {
                                 _currentStep = _currentStep + 1;
                               });
                             } else if (_currentStep == 3) {
-                              //confirmation
-                              CustomProgressDialog progressDialog =
-                                  CustomProgressDialog(context, blur: 6);
-                              progressDialog.setLoadingWidget(
-                                  CircularLoadingDialog('Requesting VPN...'));
-                              progressDialog.show();
-                              await context
-                                  .read<FirebaseFirestoreAPI>()
-                                  .createVPN(
-                                    uid: _user!.uid,
-                                    username: _userNameController.text,
-                                    email: _user!.email.toString(),
-                                    serverLocation: _selectedLocation,
-                                    duration: _currentDuration,
-                                    price: _priceVPN,
-                                    isReport: false,
-                                  )
-                                  .then((s) async {
-                                if (s == 'completed') {
-                                  progressDialog.dismiss();
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(Duration(seconds: 1));
-                                  showSuccessSnackBar('Request Completed', 2);
-                                } else {
-                                  progressDialog.dismiss();
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(Duration(seconds: 1));
-                                  showErrorSnackBar(
-                                      'Error: ${s.toString()}', 2);
-                                }
-                              });
+                              if (_myMoney! < _priceVPN!) {
+                                topupDialog(context, _myMoney, true);
+                              } else {
+                                //confirmation
+                                CustomProgressDialog progressDialog =
+                                    CustomProgressDialog(context, blur: 6);
+                                progressDialog.setLoadingWidget(
+                                    CircularLoadingDialog('Requesting VPN...'));
+                                progressDialog.show();
+                                await context
+                                    .read<FirebaseFirestoreAPI>()
+                                    .createVPN(
+                                      uid: _user!.uid,
+                                      username: _userNameController.text,
+                                      email: _user!.email.toString(),
+                                      serverLocation: _selectedLocation,
+                                      duration: _isAgent == true
+                                          ? _currentDuration
+                                          : _currentNormalDuration,
+                                      price: _priceVPN,
+                                      isReport: false,
+                                    )
+                                    .then((s) async {
+                                  if (s == 'completed') {
+                                    progressDialog.dismiss();
+                                    Navigator.of(context).pop();
+                                    await Future.delayed(Duration(seconds: 1));
+                                    showSuccessSnackBar('Request Completed', 2);
+                                  } else {
+                                    progressDialog.dismiss();
+                                    Navigator.of(context).pop();
+                                    await Future.delayed(Duration(seconds: 1));
+                                    showErrorSnackBar(
+                                        'Error: ${s.toString()}', 2);
+                                  }
+                                });
+                              }
                             }
                           },
                           onStepCancel: () {
@@ -186,7 +229,7 @@ class _AddVPNState extends State<AddVPN> {
     );
   }
 
-  List<Step> _myStep() {
+  List<Step> _myStep(bool isAgent) {
     List<Step> _step = [
       Step(
         title: Text('Please name your VPN'),
@@ -220,22 +263,39 @@ class _AddVPNState extends State<AddVPN> {
         title: Text('Select your vpn duration'),
         content: Container(
           alignment: Alignment.centerLeft,
-          child: DropdownButton(
-            items: _duration.map((String value) {
-              return DropdownMenuItem<String>(
-                child: Text(
-                  value.toString(),
+          child: isAgent == true
+              ? DropdownButton(
+                  items: _duration.map((String value) {
+                    return DropdownMenuItem<String>(
+                      child: Text(
+                        value.toString(),
+                      ),
+                      value: value,
+                    );
+                  }).toList(),
+                  value: _currentDuration,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _currentDuration = newValue;
+                    });
+                  },
+                )
+              : DropdownButton(
+                  items: _durationNormal.map((String value) {
+                    return DropdownMenuItem<String>(
+                      child: Text(
+                        value.toString(),
+                      ),
+                      value: value,
+                    );
+                  }).toList(),
+                  value: _currentNormalDuration,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _currentNormalDuration = newValue;
+                    });
+                  },
                 ),
-                value: value,
-              );
-            }).toList(),
-            value: _currentDuration,
-            onChanged: (String? newValue) {
-              setState(() {
-                _currentDuration = newValue;
-              });
-            },
-          ),
         ),
         isActive: _currentStep >= 2,
       ),
@@ -247,8 +307,15 @@ class _AddVPNState extends State<AddVPN> {
             confirmationWidget(
                 Icons.map, '${_selectedLocation.toString()} Server'),
             confirmationWidget(
-                Icons.calendar_today, _currentDuration.toString()),
-            confirmationWidget(Icons.price_change, _price().toString()),
+              Icons.calendar_today,
+              isAgent == true
+                  ? _currentDuration.toString()
+                  : _currentNormalDuration.toString(),
+            ),
+            confirmationWidget(
+              Icons.price_change,
+              isAgent == true ? _price().toString() : _normalPrice().toString(),
+            ),
           ],
         ),
         isActive: _currentStep >= 3,

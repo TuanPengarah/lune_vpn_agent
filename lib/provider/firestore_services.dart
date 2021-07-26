@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class FirebaseFirestoreAPI extends ChangeNotifier {
   final FirebaseFirestore _firestore;
@@ -16,6 +17,12 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
     required bool isReport,
   }) async {
     String? status;
+    _tarikh() {
+      var now = new DateTime.now();
+      var formatter = new DateFormat('dd/MM/yyyy');
+      return formatter.format(now);
+    }
+
     try {
       Map<String, dynamic> data = {
         'Email': email,
@@ -24,6 +31,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
         'serverLocation': serverLocation,
         'Duration': duration,
         'Status': 'Pending',
+        'VPN end': _tarikh().toString(),
         'isPay': false,
         'Remarks': '',
         'isPending': true,

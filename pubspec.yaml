@@ -22,6 +22,7 @@ dependencies:
   dismissible_page: ^0.6.3
   flutter_advanced_avatar: ^1.0.0+1
   intro_views_flutter: ^3.2.0
+  google_fonts: ^2.1.0
 
   #API Services
   firebase_core: "^1.3.0"
@@ -29,7 +30,6 @@ dependencies:
   cloud_firestore: ^2.3.0
   firebase_auth: ^2.0.0
   firebase_storage: ^10.0.1
-
 
   #State Management
   provider: ^5.0.0
@@ -42,6 +42,7 @@ dependencies:
   intl: ^0.17.0
   device_info_plus: ^2.1.0
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -51,7 +52,7 @@ dev_dependencies:
 flutter_native_splash:
   color: "#ffffff"
   color_dark: "#1a1a1a"
-  image: assets/images/vpn.png
+  image: assets/images/splash.png
   web: true
   android: true
   ios: true

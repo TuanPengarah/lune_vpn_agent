@@ -3,6 +3,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/config/constant.dart';
 import 'package:lune_vpn_agent/ui/card_userInfo.dart';
+import 'package:lune_vpn_agent/ui/logo.dart';
 
 class HomeNewsPage extends StatelessWidget {
   final String? totalUser;
@@ -30,6 +31,7 @@ class HomeNewsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Logo(),
                     SizedBox(height: 10),
                     Text(
                       'Your VPN Information',

@@ -6,9 +6,16 @@ class CurrentUser extends ChangeNotifier {
   String? uid;
   String? email;
   int? myMoney = 0;
+  bool isSuperUser = false;
+
+  setSuperUser(bool value) {
+    isSuperUser = value;
+    notifyListeners();
+  }
 
   setMoney(int? newMoney) {
     myMoney = newMoney;
+    notifyListeners();
   }
 
   checkLogin(bool newValue) {

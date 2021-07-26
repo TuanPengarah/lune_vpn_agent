@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:validators/validators.dart';
 
 class CardOrder extends StatelessWidget {
@@ -10,6 +12,9 @@ class CardOrder extends StatelessWidget {
   final bool? isPending;
   final String? remarks;
   final Function()? onPressed;
+  final Timestamp? timeStamp;
+  final String? vpnEnd;
+
   CardOrder({
     this.userName,
     this.status,
@@ -19,6 +24,8 @@ class CardOrder extends StatelessWidget {
     this.harga,
     this.remarks,
     this.onPressed,
+    this.timeStamp,
+    this.vpnEnd,
   });
 
   IconData? _statusIcon() {
@@ -53,6 +60,10 @@ class CardOrder extends StatelessWidget {
               title(),
               SizedBox(height: 5),
               information(Icons.timer, duration.toString()),
+              status == 'Active'
+                  ? information(Icons.date_range,
+                      '${DateFormat('d/MM/yyyy').format(timeStamp!.toDate()).toString()} - $vpnEnd')
+                  : Container(),
               information(Icons.location_on, serverLocation.toString()),
               Column(
                 children: [

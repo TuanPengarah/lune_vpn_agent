@@ -25,18 +25,21 @@ class VpnOverview extends StatelessWidget {
   final bool? isPending;
   final String? remarks;
   final Timestamp? timeStamp;
+  final String? vpnEnd;
 
-  VpnOverview(
-      {this.uid,
-      this.userName,
-      this.duration,
-      this.status,
-      this.location,
-      this.price,
-      this.isPending,
-      this.remarks,
-      this.timeStamp,
-      this.email});
+  VpnOverview({
+    this.uid,
+    this.userName,
+    this.duration,
+    this.status,
+    this.location,
+    this.price,
+    this.isPending,
+    this.remarks,
+    this.timeStamp,
+    this.email,
+    this.vpnEnd,
+  });
 
   void _fabAction(BuildContext context, String? userUID) async {
     if (status == 'Pending') {
@@ -201,10 +204,12 @@ class VpnOverview extends StatelessWidget {
                     _subTitle(status.toString()),
                     _title('Ordered Time'),
                     _subTitle(
-                      DateFormat('d-MM-yy hh:mm a')
+                      DateFormat('d/MM/yyyy hh:mm a')
                           .format(timeStamp!.toDate())
                           .toString(),
                     ),
+                    status == 'Active' ? _title('Expired Dated') : Container(),
+                    status == 'Active' ? _subTitle('$vpnEnd') : Container(),
                     _title('Remarks'),
                     _subTitle(remarks == '' || remarks == null
                         ? '--'

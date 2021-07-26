@@ -142,10 +142,10 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           SpeedDialChild(
-            label: 'Topup Account',
+            label: 'Buy Credit',
             child: Icon(Icons.account_balance_wallet),
             onTap: () {
-              topupDialog(context, _money);
+              topupDialog(context, _money, false);
             },
           ),
         ],

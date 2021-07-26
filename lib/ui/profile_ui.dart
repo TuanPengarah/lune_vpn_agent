@@ -21,7 +21,7 @@ Container myAccountCard(
   );
 }
 
-Container userCard(BuildContext context, int? money) {
+Container userCard(BuildContext context, int? money, bool isAgent) {
   return Container(
     width: 450,
     decoration: BoxDecoration(
@@ -54,7 +54,7 @@ Container userCard(BuildContext context, int? money) {
           ),
           SizedBox(height: 15),
           Text(
-            'Normal User',
+            isAgent == true ? 'Agent User' : 'Normal User',
             style: TextStyle(
               letterSpacing: 1.1,
               color: Colors.white70,
@@ -68,7 +68,7 @@ Container userCard(BuildContext context, int? money) {
             children: [
               TextButton.icon(
                 onPressed: () {
-                  topupDialog(context, money);
+                  topupDialog(context, money, false);
                 },
                 icon: Icon(
                   Icons.add,

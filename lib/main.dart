@@ -14,6 +14,8 @@ import 'package:lune_vpn_agent/screen/home/home.dart';
 import 'package:lune_vpn_agent/screen/login/login_page.dart';
 import 'package:provider/provider.dart';
 
+// flutter run -d web-server --web-port 8080 --web-hostname 192.168.1.17
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/screen/payment/payment_webview.dart';
 import 'package:ndialog/ndialog.dart';
 
-Future<void> topupDialog(BuildContext context, int? money) async {
+Future<void> topupDialog(BuildContext context, int? money, bool? isLow) async {
   CustomProgressDialog progressDialog = CustomProgressDialog(
     context,
     blur: 6,
@@ -15,7 +15,9 @@ Future<void> topupDialog(BuildContext context, int? money) async {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'Your account balance is',
+            isLow == true
+                ? 'Your account balance is low'
+                : 'Your account balance is',
             style: TextStyle(
               color: Colors.white54,
               fontSize: 14,
@@ -37,7 +39,9 @@ Future<void> topupDialog(BuildContext context, int? money) async {
           ),
           SizedBox(height: 15),
           Text(
-            'Are you sure want to purchase more credit?',
+            isLow == true
+                ? 'You must purchase more credit to continue'
+                : 'Are you sure want to purchase more credit?',
             style: TextStyle(
               color: Colors.white54,
               fontSize: 14,
