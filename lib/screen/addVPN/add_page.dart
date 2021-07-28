@@ -76,6 +76,7 @@ class _AddVPNState extends State<AddVPN> {
   Widget build(BuildContext context) {
     bool _isAgent = context.watch<CurrentUser>().isSuperUser;
     int? _myMoney = context.watch<CurrentUser>().myMoney;
+    String? _getCustomer = context.watch<CurrentUser>().username;
     return Hero(
       tag: 'fab',
       child: Scaffold(
@@ -181,6 +182,7 @@ class _AddVPNState extends State<AddVPN> {
                                 await context
                                     .read<FirebaseFirestoreAPI>()
                                     .createVPN(
+                                      customer: _getCustomer,
                                       uid: _user!.uid,
                                       username: _userNameController.text,
                                       email: _user!.email.toString(),

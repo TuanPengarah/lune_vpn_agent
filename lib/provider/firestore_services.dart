@@ -9,6 +9,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
   FirebaseFirestoreAPI(this._firestore);
 
   Future<String?> createVPN({
+    required String? customer,
     required String uid,
     required String username,
     required String? email,
@@ -24,16 +25,19 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
       return formatter.format(now);
     }
 
+    String _uid = DateTime.now().millisecondsSinceEpoch.toString();
+
     try {
       Map<String, dynamic> data = {
         'Email': email,
-        'Agent': 'User',
+        'Agent': customer,
         'Username': username,
         'serverLocation': serverLocation,
         'Duration': duration,
         'Status': 'Pending',
         'VPN end': _tarikh().toString(),
         'isPay': false,
+        'vpnUID': _uid,
         'Remarks': '',
         'isPending': true,
         'Harga': price,
@@ -45,13 +49,15 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
             .collection('Agent')
             .doc(uid)
             .collection('Order')
-            .add(data);
+            .doc(_uid)
+            .set(data);
       }
       //add to admin collection
       isReport == false
           ? await _firestore
               .collection('Order')
-              .add(data)
+              .doc(_uid)
+              .set(data)
               .then((value) => status = 'completed')
           : await _firestore
               .collection('userReport')
@@ -65,6 +71,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
 
   Future<String?> deletingVPN(String userUID, String vpnIUD) async {
     String? status;
+    await _firestore.collection('Order').doc(vpnIUD).delete();
     await _firestore
         .collection('Agent')
         .doc(userUID)
@@ -75,9 +82,42 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
     return status;
   }
 
-  Future<String?> renewVPN(String userUID, String vpnUID) async {
+  Future<String?> renewVPN({
+    required String? userUID,
+    required String? vpnUID,
+    required String? customer,
+    required String username,
+    required String? email,
+    required String? serverLocation,
+    required String? duration,
+    required int? price,
+    required bool isReport,
+  }) async {
     String? status;
+    _tarikh() {
+      var now = new DateTime.now();
+      var formatter = new DateFormat('dd/MM/yyyy');
+      return formatter.format(now);
+    }
+
     Map<String, dynamic> data = {
+      'Email': email,
+      'Agent': customer,
+      'Username': username,
+      'serverLocation': serverLocation,
+      'Duration': duration,
+      'Status': 'Pending',
+      'VPN end': _tarikh().toString(),
+      'isPay': false,
+      'vpnUID': vpnUID,
+      'Remarks': '',
+      'isPending': true,
+      'Harga': price,
+      'timeStamp': FieldValue.serverTimestamp(),
+    };
+    await _firestore.collection('Order').doc(vpnUID).set(data);
+
+    Map<String, dynamic> updateData = {
       'Status': 'Pending',
       'isPay': false,
       'Remarks': '',
@@ -89,7 +129,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
         .doc(userUID)
         .collection('Order')
         .doc(vpnUID)
-        .update(data)
+        .update(updateData)
         .then((value) => status = 'operation-completed');
     return status;
   }

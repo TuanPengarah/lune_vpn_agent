@@ -4,6 +4,7 @@ class MyThemes {
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     appBarTheme: AppBarTheme(
+      backgroundColor: Colors.teal,
       brightness: Brightness.dark,
     ),
     textTheme: TextTheme(
@@ -17,6 +18,7 @@ class MyThemes {
   static final lightTheme = ThemeData(
     brightness: Brightness.light,
     appBarTheme: AppBarTheme(
+      backgroundColor: Colors.blue,
       brightness: Brightness.dark,
     ),
     primarySwatch: Colors.blue,

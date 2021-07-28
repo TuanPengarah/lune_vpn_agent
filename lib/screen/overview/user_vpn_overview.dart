@@ -26,6 +26,7 @@ class VpnOverview extends StatelessWidget {
   final String? remarks;
   final Timestamp? timeStamp;
   final String? vpnEnd;
+  final String? agent;
 
   VpnOverview({
     this.uid,
@@ -39,9 +40,11 @@ class VpnOverview extends StatelessWidget {
     this.timeStamp,
     this.email,
     this.vpnEnd,
+    this.agent,
   });
 
-  void _fabAction(BuildContext context, String? userUID) async {
+  void _fabAction(
+      BuildContext context, String? userUID, String? userName) async {
     if (status == 'Pending') {
       await showCancelRequest(
               context,
@@ -92,7 +95,17 @@ class VpnOverview extends StatelessWidget {
           Navigator.of(context).pop();
           await context
               .read<FirebaseFirestoreAPI>()
-              .renewVPN(userUID.toString(), uid.toString())
+              .renewVPN(
+                userUID: userUID.toString(),
+                vpnUID: uid.toString(),
+                isReport: false,
+                price: price,
+                serverLocation: location,
+                duration: duration,
+                email: email,
+                customer: agent,
+                username: userName.toString(),
+              )
               .then((s) {
             if (s == 'operation-completed') {
               showSuccessSnackBar('Requesting completed', 2);
@@ -126,6 +139,7 @@ class VpnOverview extends StatelessWidget {
           await context
               .read<FirebaseFirestoreAPI>()
               .createVPN(
+                  customer: userName,
                   uid: userUID.toString(),
                   username: userName.toString(),
                   email: email.toString(),
@@ -178,6 +192,7 @@ class VpnOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String? _userUID = context.watch<CurrentUser>().uid;
+    String? _getCustomer = context.watch<CurrentUser>().username;
     return DismissiblePage(
       onDismiss: () => Navigator.of(context).pop(),
       child: Hero(
@@ -234,7 +249,7 @@ class VpnOverview extends StatelessWidget {
                         : Text('Cancel Request'),
             onPress: () {
               print(email);
-              _fabAction(context, _userUID);
+              _fabAction(context, _userUID, _getCustomer);
             },
           ),
           floatingActionButtonLocation:

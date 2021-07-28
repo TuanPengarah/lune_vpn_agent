@@ -254,6 +254,7 @@ class VpnPage extends StatelessWidget {
                                 remarks: doc['Remarks'],
                                 timeStamp: doc['timeStamp'],
                                 vpnEnd: doc['VPN end'],
+                                agent: doc['Agent']
                               ),
                             );
                           },

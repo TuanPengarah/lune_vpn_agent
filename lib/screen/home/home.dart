@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
+    FirebaseMessaging.instance.subscribeToTopic('agentVPN');
     _getToken();
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
@@ -45,8 +45,10 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    ///forground work
+    ///foreground work
     FirebaseMessaging.onMessage.listen((message) {
+      print(message.data);
+
       if (message.notification != null) {
         print(message.notification!.body);
         print(message.notification!.title);
