@@ -1,15 +1,19 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/dialog/topup_diaolog.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
+import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/screen/home/page/file_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/news_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/profile_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/vpn_page.dart';
+import 'package:lune_vpn_agent/snackbar/notif_snackbar.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../main.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,6 +31,60 @@ class _HomePageState extends State<HomePage> {
   String? _expired = '--';
   String? _canceled = '--';
   bool _visibleFAB = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _getToken();
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        final routeFromMessage = message.data["route"];
+
+        Navigator.of(context).pushNamed(routeFromMessage);
+      }
+    });
+
+    ///forground work
+    FirebaseMessaging.onMessage.listen((message) {
+      if (message.notification != null) {
+        print(message.notification!.body);
+        print(message.notification!.title);
+        showNotifSnackBar(message.notification!.body.toString(), 2);
+        if (kIsWeb == false) {
+          final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+          AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: id,
+              channelKey: 'agentVPN',
+              title: message.notification!.title,
+              body: message.notification!.body,
+            ),
+          );
+        }
+      }
+    });
+
+    ///When the app is in background but opened and user taps
+    ///on the notification
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      final routeFromMessage = message.data["route"];
+
+      Navigator.of(context).pushNamed(routeFromMessage);
+    });
+  }
+
+  void _getToken() async {
+    // Get the token each time the application loads
+    String? token = await FirebaseMessaging.instance.getToken();
+
+    await context.read<FirebaseFirestoreAPI>().saveTokenToDatabase(token);
+    print(token);
+    FirebaseMessaging.instance.onTokenRefresh.listen((event) async {
+      await context.read<FirebaseFirestoreAPI>().saveTokenToDatabase(token);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

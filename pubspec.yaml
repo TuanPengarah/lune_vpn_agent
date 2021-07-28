@@ -30,6 +30,8 @@ dependencies:
   cloud_firestore: ^2.3.0
   firebase_auth: ^2.0.0
   firebase_storage: ^10.0.1
+  firebase_messaging: ^10.0.4
+  awesome_notifications: ^0.0.6+10
 
   #State Management
   provider: ^5.0.0

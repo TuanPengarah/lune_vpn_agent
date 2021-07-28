@@ -115,6 +115,7 @@
           }
         }, 4000);
       });
+      navigator.serviceWorker.register("/firebase-messaging-sw.js");
     } else {
       // Service workers not supported. Just drop the <script> tag.
       loadMainDartJs();

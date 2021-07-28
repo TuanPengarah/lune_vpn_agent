@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -91,5 +92,14 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
         .update(data)
         .then((value) => status = 'operation-completed');
     return status;
+  }
+
+  Future<void> saveTokenToDatabase(String? token) async {
+    // Assume user is logged in for this example
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    await FirebaseFirestore.instance.collection('Agent').doc(userId).update({
+      'tokens': FieldValue.arrayUnion([token]),
+    });
   }
 }
