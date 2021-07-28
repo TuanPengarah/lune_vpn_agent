@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lune_vpn_agent/screen/payment/payment_webview.dart';
+import 'package:lune_vpn_agent/config/constant.dart';
+// import 'package:lune_vpn_agent/screen/payment/payment_webview.dart';
+import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:ndialog/ndialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> topupDialog(BuildContext context, int? money, bool? isLow) async {
   CustomProgressDialog progressDialog = CustomProgressDialog(
@@ -69,14 +72,20 @@ Future<void> topupDialog(BuildContext context, int? money, bool? isLow) async {
                 style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all<Color>(Colors.white12)),
-                onPressed: () {
-                  progressDialog.dismiss();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (c) => PaymentWebView(),
-                    ),
-                  );
+                onPressed: () async {
+                  // progressDialog.dismiss();
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (c) => PaymentWebView(),
+                  //   ),
+                  // );
+                  final url = "$kPaymentUrl";
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    showErrorSnackBar('Error cannot open link', 2);
+                  }
                 },
                 child: Text(
                   'Purchase',

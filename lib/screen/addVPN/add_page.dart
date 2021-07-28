@@ -102,6 +102,7 @@ class _AddVPNState extends State<AddVPN> {
                         ),
                         IconButton(
                           tooltip: 'Close',
+                          color: Colors.white,
                           icon: Icon(Icons.close),
                           onPressed: () {
                             Navigator.of(context).pop();
