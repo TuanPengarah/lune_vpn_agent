@@ -217,7 +217,7 @@ class VpnOverview extends StatelessWidget {
                     _subTitle(location.toString()),
                     _title('Status'),
                     _subTitle(status.toString()),
-                    _title('Ordered Time'),
+                    _title('Last Update'),
                     _subTitle(
                       DateFormat('d/MM/yyyy hh:mm a')
                           .format(timeStamp!.toDate())
