@@ -1,17 +1,21 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lune_vpn_agent/config/routes.dart';
 import 'package:lune_vpn_agent/dialog/topup_diaolog.dart';
+import 'package:lune_vpn_agent/provider/auth_services.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
 import 'package:lune_vpn_agent/screen/home/page/file_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/news_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/profile_page.dart';
 import 'package:lune_vpn_agent/screen/home/page/vpn_page.dart';
+import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/notif_snackbar.dart';
+import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../main.dart';
@@ -31,14 +35,17 @@ class _HomePageState extends State<HomePage> {
   String? _expired = '--';
   String? _canceled = '--';
   bool _visibleFAB = true;
+  User? _user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
+
     if (kIsWeb == false) {
       FirebaseMessaging.instance.subscribeToTopic('agentVPN');
     }
-    _getToken();
+    _checkUser().then((value) => _getToken());
+
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
         final routeFromMessage = message.data["route"];
@@ -79,7 +86,25 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _checkUser() async {
+    await FirebaseFirestore.instance
+        .collection('Agent')
+        .doc(_user!.uid)
+        .get()
+        .then((snap) async {
+      if (!snap.exists) {
+        messengerKey.currentState!.clearSnackBars();
+        await context.read<AuthenticationServices>().signOut();
+        showErrorSnackBar('Sorry admin user cannot access this apps', 2);
+      } else {
+        showSuccessSnackBar('Login Success', 2);
+      }
+    });
+  }
+
   void _getToken() async {
+    //check user first
+
     // Get the token each time the application loads
     String? token = await FirebaseMessaging.instance.getToken();
 

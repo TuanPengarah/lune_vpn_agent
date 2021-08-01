@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lune_vpn_agent/config/constant.dart';
 import 'package:lune_vpn_agent/ui/card_userInfo.dart';
 import 'package:lune_vpn_agent/ui/logo.dart';
@@ -14,6 +15,8 @@ class HomeNewsPage extends StatelessWidget {
 
   HomeNewsPage(
       {this.totalUser, this.pending, this.active, this.expired, this.canceled});
+
+  final _dateFormat = DateFormat('d/MM/yyyy hh:mm a');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +80,7 @@ class HomeNewsPage extends StatelessWidget {
                     StreamBuilder(
                         stream: FirebaseFirestore.instance
                             .collection('News')
+                            .orderBy('Tarikh', descending: true)
                             .snapshots(),
                         builder: (BuildContext context,
                             AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -118,6 +122,19 @@ class HomeNewsPage extends StatelessWidget {
                           }
                           return Column(
                             children: snapshot.data!.docs.map((doc) {
+                              String convertTimeStamp() {
+                                try {
+                                  Timestamp _timeStamp = doc['Tarikh'];
+                                  var _convert = _timeStamp.toDate();
+                                  return _dateFormat
+                                      .format(_convert)
+                                      .toString();
+                                } catch (e) {
+                                  print(e);
+                                  return e.toString();
+                                }
+                              }
+
                               return Card(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -137,7 +154,7 @@ class HomeNewsPage extends StatelessWidget {
                                         ),
                                         SizedBox(height: 5),
                                         Text(
-                                          doc['Tarikh'],
+                                          convertTimeStamp().toString(),
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: 12,

@@ -170,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         SizedBox(height: 30),
                         Center(
                           child: Text(
-                            'Lune VPN 0.20\nRunning on $_devices',
+                            'Lune VPN 0.2.2\nRunning on $_devices',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,

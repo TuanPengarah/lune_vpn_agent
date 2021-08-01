@@ -25,7 +25,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
       return formatter.format(now);
     }
 
-    String _uid = DateTime.now().millisecondsSinceEpoch.toString();
+    String _generateUid = DateTime.now().millisecondsSinceEpoch.toString();
 
     try {
       Map<String, dynamic> data = {
@@ -37,7 +37,8 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
         'Status': 'Pending',
         'VPN end': _tarikh().toString(),
         'isPay': false,
-        'vpnUID': _uid,
+        'vpnUID': _generateUid,
+        'userUID': uid,
         'Remarks': '',
         'isPending': true,
         'Harga': price,
@@ -49,14 +50,14 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
             .collection('Agent')
             .doc(uid)
             .collection('Order')
-            .doc(_uid)
+            .doc(_generateUid)
             .set(data);
       }
       //add to admin collection
       isReport == false
           ? await _firestore
               .collection('Order')
-              .doc(_uid)
+              .doc(_generateUid)
               .set(data)
               .then((value) => status = 'completed')
           : await _firestore
@@ -110,6 +111,7 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
       'VPN end': _tarikh().toString(),
       'isPay': false,
       'vpnUID': vpnUID,
+      'userUID': userUID,
       'Remarks': '',
       'isPending': true,
       'Harga': price,

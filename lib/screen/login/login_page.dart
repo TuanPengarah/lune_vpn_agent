@@ -72,10 +72,10 @@ class _LoginPageState extends State<LoginPage> {
         }
         _loginButton.success();
 
-        Future.delayed(Duration(seconds: 1), () {
-          showSuccessSnackBar('Login Success', 2);
-          // Navigator.pushReplacementNamed(context, MyRoutes.home);
-        });
+        // Future.delayed(Duration(seconds: 1), () {
+
+        //   // Navigator.pushReplacementNamed(context, MyRoutes.home);
+        // });
       } else {
         showErrorSnackBar('Aw Snap! An error occured: $e', 2);
         _errorButton();
