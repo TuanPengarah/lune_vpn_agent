@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/provider/auth_services.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
-import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
 import 'package:lune_vpn_agent/ui/logo.dart';
 import 'package:lune_vpn_agent/ui/textbar.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';

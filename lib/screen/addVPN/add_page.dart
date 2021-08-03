@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lune_vpn_agent/dialog/topup_diaolog.dart';
+import 'package:lune_vpn_agent/provider/cloud_function.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/provider/firestore_services.dart';
+import 'package:lune_vpn_agent/provider/send_email.dart';
 import 'package:lune_vpn_agent/snackbar/error_snackbar.dart';
 import 'package:lune_vpn_agent/snackbar/success_snackbar.dart';
 import 'package:lune_vpn_agent/ui/circular_loading_dialog.dart';
@@ -76,6 +78,7 @@ class _AddVPNState extends State<AddVPN> {
   Widget build(BuildContext context) {
     bool _isAgent = context.watch<CurrentUser>().isSuperUser;
     int? _myMoney = context.watch<CurrentUser>().myMoney;
+    String? _email = context.watch<CurrentUser>().email;
     String? _getCustomer = context.watch<CurrentUser>().username;
     return Hero(
       tag: 'fab',
@@ -191,10 +194,18 @@ class _AddVPNState extends State<AddVPN> {
                                           ? _currentDuration
                                           : _currentNormalDuration,
                                       price: _priceVPN,
-                                      isReport: false,
                                     )
                                     .then((s) async {
                                   if (s == 'completed') {
+                                    await sendEmail(
+                                        name: _getCustomer,
+                                        email: _email,
+                                        emailSendTo: 'lunelabanoon@icloud.com',
+                                        subject:
+                                            'Hooray! You get new order from $_getCustomer',
+                                        message:
+                                            'VPN name: ${_userNameController.text}| Server Location: $_selectedLocation| Price: RM$_priceVPN');
+                                    await sendNotification();
                                     progressDialog.dismiss();
                                     Navigator.of(context).pop();
                                     await Future.delayed(Duration(seconds: 1));

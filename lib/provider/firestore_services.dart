@@ -16,7 +16,6 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
     required String? serverLocation,
     required String? duration,
     required int? price,
-    required bool isReport,
   }) async {
     String? status;
     _tarikh() {
@@ -45,28 +44,69 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
         'timeStamp': FieldValue.serverTimestamp(),
       };
       //add to agent collection
-      if (isReport == false) {
-        await _firestore
-            .collection('Agent')
-            .doc(uid)
-            .collection('Order')
-            .doc(_generateUid)
-            .set(data);
-      }
+
+      await _firestore
+          .collection('Agent')
+          .doc(uid)
+          .collection('Order')
+          .doc(_generateUid)
+          .set(data);
+
       //add to admin collection
-      isReport == false
-          ? await _firestore
-              .collection('Order')
-              .doc(_generateUid)
-              .set(data)
-              .then((value) => status = 'completed')
-          : await _firestore
-              .collection('userReport')
-              .add(data)
-              .then((value) => status = 'completed');
+
+      await _firestore
+          .collection('Order')
+          .doc(_generateUid)
+          .set(data)
+          .then((value) => status = 'completed');
+      // : await _firestore
+      //     .collection('userReport')
+      //     .add(dataReport)
+      //     .then((value) => status = 'completed');
     } on FirebaseException catch (e) {
       status = e.toString();
     }
+    return status;
+  }
+
+  Future<String?> reportVPN({
+    required String? agent,
+    required String? email,
+    required String? remarks,
+    required String? duration,
+    required Timestamp? timeStamp,
+    required String? vpnName,
+    required String? status,
+    required String? serverLocation,
+    required String? vpnEnd,
+    required String? userUID,
+    required String? vpnUID,
+    required int? price,
+  }) async {
+    String? status;
+    Map<String, dynamic> dataReport = {
+      'Email': email,
+      'Agent': agent,
+      'Username': vpnName,
+      'serverLocation': serverLocation,
+      'Duration': duration,
+      'Status': status,
+      'VPN end': vpnEnd,
+      'userUID': userUID,
+      'Remarks': remarks,
+      'isPending': false,
+      'Harga': price,
+      'timeStamp': timeStamp,
+    };
+
+    await _firestore
+        .collection('userReport')
+        .doc(vpnUID)
+        .set(dataReport)
+        .then((value) => status = 'completed')
+        .catchError(
+          (err) => status = err.toString(),
+        );
     return status;
   }
 

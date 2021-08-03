@@ -138,15 +138,20 @@ class VpnOverview extends StatelessWidget {
           Navigator.of(context).pop();
           await context
               .read<FirebaseFirestoreAPI>()
-              .createVPN(
-                  customer: userName,
-                  uid: userUID.toString(),
-                  username: userName.toString(),
-                  email: email.toString(),
-                  serverLocation: location.toString(),
-                  duration: duration,
-                  price: price,
-                  isReport: true)
+              .reportVPN(
+                agent: agent,
+                email: email,
+                remarks: remarks,
+                duration: duration,
+                timeStamp: timeStamp,
+                vpnName: userName,
+                status: status,
+                serverLocation: location,
+                vpnEnd: vpnEnd,
+                userUID: userUID,
+                vpnUID: uid,
+                price: price,
+              )
               .then((s) {
             if (s == 'completed') {
               showSuccessSnackBar('Report successfully send to our admin', 2);
