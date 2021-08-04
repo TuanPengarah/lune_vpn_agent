@@ -16,10 +16,7 @@ Future sendEmail({
   final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
   final response = await http.post(
     url,
-    headers: {
-      kIsWeb ? '' : 'origin': 'http//localhost',
-      'Content-Type': 'application/json'
-    },
+    headers: {'origin': 'http//localhost', 'Content-Type': 'application/json'},
     body: jsonEncode({
       'service_id': serviceId,
       'template_id': templateId,
