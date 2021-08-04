@@ -43,8 +43,7 @@ class VpnOverview extends StatelessWidget {
     this.agent,
   });
 
-  void _fabAction(
-      BuildContext context, String? userUID, String? userName) async {
+  void _fabAction(BuildContext context, String? userUID) async {
     if (status == 'Pending') {
       await showCancelRequest(
               context,
@@ -144,8 +143,8 @@ class VpnOverview extends StatelessWidget {
                 remarks: remarks,
                 duration: duration,
                 timeStamp: timeStamp,
-                vpnName: userName,
-                status: status,
+                vpnName: userName.toString(),
+                vpnStatus: status.toString(),
                 serverLocation: location,
                 vpnEnd: vpnEnd,
                 userUID: userUID,
@@ -197,7 +196,6 @@ class VpnOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String? _userUID = context.watch<CurrentUser>().uid;
-    String? _getCustomer = context.watch<CurrentUser>().username;
     return DismissiblePage(
       onDismiss: () => Navigator.of(context).pop(),
       child: Hero(
@@ -254,7 +252,7 @@ class VpnOverview extends StatelessWidget {
                         : Text('Cancel Request'),
             onPress: () {
               print(email);
-              _fabAction(context, _userUID, _getCustomer);
+              _fabAction(context, _userUID);
             },
           ),
           floatingActionButtonLocation:
