@@ -178,7 +178,8 @@ class _AddVPNState extends State<AddVPN> {
                               } else {
                                 //confirmation
                                 CustomProgressDialog progressDialog =
-                                    CustomProgressDialog(context, blur: 6);
+                                    CustomProgressDialog(context,
+                                        blur: 6, dismissable: false);
                                 progressDialog.setLoadingWidget(
                                     CircularLoadingDialog('Requesting VPN...'));
                                 progressDialog.show();

@@ -63,7 +63,8 @@ class FirebaseFirestoreAPI extends ChangeNotifier {
       //     .collection('userReport')
       //     .add(dataReport)
       //     .then((value) => status = 'completed');
-    } on FirebaseException catch (e) {
+    } catch (e) {
+      print(e);
       status = e.toString();
     }
     return status;
