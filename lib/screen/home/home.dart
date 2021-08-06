@@ -63,11 +63,9 @@ class _HomePageState extends State<HomePage> {
         print(message.notification!.title);
         showNotifSnackBar(message.notification!.body.toString(), 2);
         if (kIsWeb == false) {
-          final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
           AwesomeNotifications().createNotification(
             content: NotificationContent(
-              id: id,
+              id: 9,
               channelKey: 'agentVPN',
               title: message.notification!.title,
               body: message.notification!.body,

@@ -22,26 +22,36 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 Future<void> backgroundHandler(RemoteMessage message) async {
   print(message.data.toString());
   print(message.notification!.title);
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: 9,
+      channelKey: 'agentVPN',
+      title: message.notification!.title,
+      body: message.notification!.body,
+    ),
+  );
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   if (kIsWeb == false) {
     AwesomeNotifications().initialize(
         // set the icon to null if you want to use the default app icon
         null,
         [
           NotificationChannel(
-              channelKey: 'agentVPN',
-              channelName: 'Agent VPN',
-              channelDescription: 'Notification channel for receiving VPN',
-              defaultColor: Color(0xFF9D50DD),
-              ledColor: Colors.blue)
+            channelKey: 'agentVPN',
+            channelName: 'Agent VPN',
+            channelDescription: 'Notification channel for receiving VPN',
+            defaultColor: Colors.teal,
+            ledColor: Colors.teal,
+            importance: NotificationImportance.High,
+          )
         ]);
   }
+  FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   runApp(MyApp(saveThemeMode: savedThemeMode));
 }

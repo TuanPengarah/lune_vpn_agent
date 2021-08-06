@@ -2,6 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:lune_vpn_agent/config/constant.dart';
 import 'package:lune_vpn_agent/dialog/logout_dialog.dart';
 import 'package:lune_vpn_agent/provider/current_user.dart';
 import 'package:lune_vpn_agent/ui/profile_ui.dart';
@@ -170,7 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         SizedBox(height: 30),
                         Center(
                           child: Text(
-                            'Lune VPN 0.2.2\nRunning on $_devices',
+                            'Lune VPN $kVersion\nRunning on $_devices',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
